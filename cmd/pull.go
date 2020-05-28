@@ -21,7 +21,7 @@ var pullCmd = &cobra.Command{
 		var stdout, err = shellCmd.Output()
 
 		if err != nil {
-			Println(err.Error())
+			Println("Git err response on branch query: ", err.Error())
 			return
 		}
 		outTxt := strings.Split(string(stdout), " ")
@@ -31,7 +31,7 @@ var pullCmd = &cobra.Command{
 		shellCmd = exec.Command("git", "pull", "origin", branch)
 		stdout, err = shellCmd.Output()
 		if err != nil {
-			Println(err.Error())
+			Println("Git err response on pull: ", err.Error())
 			return
 		}
 		Println("Git response: ", string(stdout))

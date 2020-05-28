@@ -16,12 +16,12 @@ var pushCmd = &cobra.Command{
 	Short: "Push from current git origin/$branchName",
 	Long:"Runs git branch and retrieves the current branch, then runs git push origin $branchName",
 	Run: func(cmd *cobra.Command, args []string){
-		Println("Currently running pull")
+		Println("Currently running push")
 		var shellCmd = exec.Command("git", "branch")
 		var stdout, err = shellCmd.Output()
 
 		if err != nil {
-			Println(err.Error())
+			Println("Git err response on branch query: ", err.Error())
 			return
 		}
 		outTxt := strings.Split(string(stdout), "*")
@@ -29,10 +29,10 @@ var pushCmd = &cobra.Command{
 		Println(branch)
 
 		Printf("Currently pushing to %s", branch)
-		shellCmd = exec.Command("git", "push", "origin", branch)
+		shellCmd = exec.Command("git", "push origin" + branch)
 		stdout, err = shellCmd.Output()
 		if err != nil {
-			Println(err.Error())
+			Println("Git err response on push: ", err.Error())
 			return
 		}
 		Println("Git response: ", string(stdout))
