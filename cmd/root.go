@@ -12,8 +12,12 @@ var rootCmd = &cobra.Command{
 	Long: "A way to get current branches and affix them to git commands to minimize on typing",
 }
 
-func Execute() error {
-	return rootCmd.Execute()
+func Execute() {
+	err := rootCmd.Execute()
+	if err != nil {
+		er(err)
+		os.Exit(1)
+	}
 }
 
 func er(msg interface{}) {
