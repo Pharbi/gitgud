@@ -1,39 +1,45 @@
 package cmd
 
 import (
-	. "fmt"
-	"strings"
-	"os/exec"
+	. "gitgud/utils"
+	"github.com/go-git/go-git/v5"
 	"github.com/spf13/cobra"
+	"os"
 )
-
-func init(){
-	rootCmd.AddCommand(pullCmd)
-}
 
 var pullCmd = &cobra.Command{
 	Use: "pull",
 	Short: "Pull from current git origin/$branchName",
 	Long:"Runs git branch and retrieves the current branch, then runs git pull origin $branchName",
-	Run: func(cmd *cobra.Command, args []string){
-		Println("Currently running pull")
-		var shellCmd = exec.Command("git", "branch")
-		var stdout, err = shellCmd.Output()
+}
 
-		if err != nil {
-			Println("Git err response on branch query: ", err.Error())
-			return
-		}
-		outTxt := strings.Split(string(stdout), " ")
-		_, branch := outTxt[0], outTxt[1]
+func init(){
+	pullCmd.Run = pull
+	rootCmd.AddCommand(pullCmd)
+}
 
-		Printf("Currently pulling from %s", branch)
-		shellCmd = exec.Command("git", "pull", "origin", branch)
-		stdout, err = shellCmd.Output()
-		if err != nil {
-			Println("Git err response on pull: ", err.Error())
-			return
-		}
-		Println("Git response: ", string(stdout))
-	},
+func pull(cmd *cobra.Command, args []string){
+	println("Currently running pull")
+	println("----------------------")
+	cwd, _ := os.Getwd()
+	path := cwd
+
+	repo, err := git.PlainOpen(path)
+	CheckIfError(err)
+
+	currDir, err := repo.Worktree()
+	CheckIfError(err)
+
+	auth := GetKeys()
+	err = currDir.Pull(&git.PullOptions{
+		RemoteName: "origin",
+		Auth: auth})
+	CheckIfError(err)
+
+	ref, err := repo.Head()
+	CheckIfError(err)
+
+	lastCommit, err := repo.CommitObject(ref.Hash())
+	CheckIfError(err)
+	println("Done! Currently on this commit:", lastCommit)
 }

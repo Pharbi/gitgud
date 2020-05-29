@@ -1,40 +1,36 @@
 package cmd
 
 import (
-	. "fmt"
-	"strings"
-	"os/exec"
+	. "gitgud/utils"
+	"github.com/go-git/go-git/v5"
 	"github.com/spf13/cobra"
+	"os"
 )
-
-func init(){
-	rootCmd.AddCommand(pushCmd)
-}
 
 var pushCmd = &cobra.Command{
 	Use: "push",
 	Short: "Push from current git origin/$branchName",
 	Long:"Runs git branch and retrieves the current branch, then runs git push origin $branchName",
-	Run: func(cmd *cobra.Command, args []string){
-		Println("Currently running push")
-		var shellCmd = exec.Command("git", "branch")
-		var stdout, err = shellCmd.Output()
+}
 
-		if err != nil {
-			Println("Git err response on branch query: ", err.Error())
-			return
-		}
-		outTxt := strings.Split(string(stdout), "*")
-		_, branch := outTxt[0], outTxt[1]
-		Println(branch)
+func init(){
+	pushCmd.Run = push
+	rootCmd.AddCommand(pushCmd)
+}
 
-		Printf("Currently pushing to %s", branch)
-		shellCmd = exec.Command("git", "push origin" + branch)
-		stdout, err = shellCmd.Output()
-		if err != nil {
-			Println("Git err response on push: ", err.Error())
-			return
-		}
-		Println("Git response: ", string(stdout))
-	},
+func push(cmd *cobra.Command, args []string) {
+	println("Currently running push")
+	println("----------------------")
+	cwd, _ := os.Getwd()
+	path := cwd
+
+	repo, err := git.PlainOpen(path)
+	CheckIfError(err)
+
+	auth := GetKeys()
+	err = repo.Push(&git.PushOptions{
+		RemoteName: "origin",
+		Auth: auth})
+	CheckIfError(err)
+	println("Done!")
 }
