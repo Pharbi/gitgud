@@ -12,9 +12,9 @@ import (
 func GetKeys() *ssh.PublicKeys{
 	println("Retrieving the keys")
 	println("Expanding the directory path")
+	println("----------------------------")
 	home, _ := homedir.Dir()
 	path := filepath.Join(home, "/.ssh/id_rsa")
-	println(path)
 	sshKey, err := ioutil.ReadFile(path)
 	CheckIfError(err)
 	auth, err := ssh.NewPublicKeys("git", sshKey, "")
